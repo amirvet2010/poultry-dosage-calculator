@@ -1,0 +1,43 @@
+import streamlit as st
+
+# إعدادات الصفحة
+st.set_page_config(page_title="حاسبة جرعات الدواجن - ATCO Pharma", page_icon="🐔")
+
+st.title("🐔 حاسبة الجرعات البيطرية للمزارع")
+st.markdown("**إهداء من قسم التسويق والدعم الفني - شركة ATCO Pharma**")
+
+st.divider()
+
+# القسم الأول: بيانات القطيع
+st.header("1. بيانات قطيع الدواجن")
+col1, col2 = st.columns(2)
+with col1:
+    bird_count = st.number_input("عدد الطيور", min_value=100, value=10000, step=100)
+with col2:
+    avg_weight = st.number_input("متوسط وزن الطائر (كجم)", min_value=0.1, value=1.5, step=0.1)
+
+total_weight = bird_count * avg_weight
+st.info(f"⚖️ إجمالي الوزن الحي للقطيع: {total_weight:,.2f} كجم")
+
+# القسم الثاني: بيانات الدواء والجرعة
+st.header("2. حساب جرعة الدواء")
+drug_name = st.text_input("اسم المنتج (مثل: Eradibact أو Atcocure)", "Eradibact")
+dose_per_kg = st.number_input("الجرعة (ملجم مادة فعالة / كجم من وزن الطائر)", min_value=1.0, value=10.0, step=1.0)
+concentration = st.number_input("تركيز الدواء في المنتج (%)", min_value=1.0, max_value=100.0, value=20.0, step=1.0)
+
+# زر الحساب
+if st.button("حساب الجرعة المطلوبة", type="primary"):
+    # حساب إجمالي المادة الفعالة المطلوبة
+    total_active_mg = total_weight * dose_per_kg
+    
+    # حساب كمية المنتج التجاري المطلوبة (بالملجم) ثم تحويلها لجرام/مل
+    product_needed_g = (total_active_mg / (concentration / 100)) / 1000
+    
+    # استهلاك المياه التقريبي (تقدير مبسط للدواجن: حوالي 250 مل للطائر تختلف حسب العمر والحرارة)
+    est_water = bird_count * 0.250 
+
+    st.success(f"✅ كمية {drug_name} المطلوبة للقطيع: **{product_needed_g:,.2f} جرام / مل**")
+    st.warning(f"💧 تضاف هذه الكمية على مياه الشرب اليومية (استهلاك المياه التقريبي: {est_water:,.0f} لتر)")
+
+st.divider()
+st.caption("تم التطوير بواسطة فريق التسويق - ATCO Pharma لتسهيل عمل الأطباء البيطريين.")
